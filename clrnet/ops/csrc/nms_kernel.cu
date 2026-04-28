@@ -171,9 +171,9 @@ std::vector<at::Tensor> nms_cuda_forward(
   AT_DISPATCH_FLOATING_TYPES(boxes.scalar_type(), "nms_cuda_forward", ([&] {
     nms_kernel<<<blocks, threads>>>(boxes_num,
                                     (scalar_t)nms_overlap_thresh,
-                                    boxes.data_prt<scalar_t>(),
-                                    idx.data_prt<int64_t>(),
-                                    mask.data_prt<int64_t>());
+                                    boxes.data_ptr<scalar_t>(),
+                                    idx.data_ptr<int64_t>(),
+                                    mask.data_ptr<int64_t>());
   }));
 
   auto keep = at::empty({boxes_num}, longOptions);
@@ -181,11 +181,11 @@ std::vector<at::Tensor> nms_cuda_forward(
   auto num_to_keep = at::empty({}, longOptions);
 
   nms_collect<<<1, 1>>>(boxes_num, col_blocks, top_k,
-                        idx.data_prt<int64_t>(),
-                        mask.data_prt<int64_t>(),
-                        keep.data_prt<int64_t>(),
-                        parent_object_index.data_prt<int64_t>(),
-                        num_to_keep.data_prt<int64_t>());
+                        idx.data_ptr<int64_t>(),
+                        mask.data_ptr<int64_t>(),
+                        keep.data_ptr<int64_t>(),
+                        parent_object_index.data_ptr<int64_t>(),
+                        num_to_keep.data_ptr<int64_t>());
 
 
   return {keep,num_to_keep,parent_object_index};
